@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Posts</title>
+    <style>
+        .post {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .tags {
+            color: #888;
+            font-size: 14px;
+        }
+        .author, .date {
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<h1><a href="/posts" style="text-decoration: none; color: inherit;">Blog Posts</a></h1>
+
+<br>
+<a href="/posts/create" class="create-post">Create Post</a>
+<br>
+<a href="/login" >Login</a>
+<br>
+<a href="/users/register">register</a>
+<!-- Search Form -->
+<form th:action="@{/posts/search}" method="get">
+    <label for="query">Search:</label>
+    <input type="text" id="query" name="query" th:value="${searchQuery}" placeholder="Search by title or content" />
+    <button type="submit">Search</button>
+</form>
+
+<!-- Filter Form -->
+<form th:action="@{/posts/filter}" method="get">
+    <label for="author">Author:</label>
+    <input type="text" id="author" name="author" th:value="${author}" />
+
+    <label for="tag">Tags:</label>
+    <input type="text" id="tag" name="tag" th:value="${tag != null ? tag : ''}" />
+
+    <label for="startDate">Start Date:</label>
+    <input type="date" id="startDate" name="startDate" th:value="${startDate}" />
+
+    <label for="endDate">End Date:</label>
+    <input type="date" id="endDate" name="endDate" th:value="${endDate}" />
+
+    <button type="submit">Filter</button>
+</form>
+
+
+
+<!-- Sorting Links -->
+<a href="/posts?sort=desc">Sort by Oldest</a>
+<a href="/posts?sort=asc">Sort by Recent</a>
+
+<!-- Display Blog Posts -->
+<div th:each="post : ${posts}" class="post">
+    <h2><a th:href="@{'/posts/' + ${post.id}}" th:text="${post.title}"></a></h2>
+    <p th:text="${post.excerpt}"></p>
+    <p class="author">Author: <span th:text="${post.user.name}"></span></p> <!-- Access the User's name -->
+    <p class="date">Published: <span th:text="${post.publishedAt}"></span></p>
+    <p class="tags">Tags:
+        <span th:each="tag, iterStat : ${post.tags}" th:text="${tag.name}"
+              th:if="${iterStat.index < post.tags.size() - 1}">, </span>
+        <span th:each="tag : ${post.tags}" th:text="${tag.name}"
+              th:if="${tag != post.tags[post.tags.size() - 1]}">, </span>
+    </p>
+</div>
+
+</body>
+</html>

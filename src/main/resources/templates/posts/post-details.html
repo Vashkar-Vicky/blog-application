@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Post Details</title>
+    <style>
+        .post {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .tags {
+            color: #888;
+            font-size: 14px;
+        }
+        .author, .date {
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<h1>Post Details</h1>
+<!--<a href="/posts/update" class="create-post">Update Post</a>-->
+<!--<a th:href="@{/posts/edit/{id}(id=${post.id})}" class="create-post">Update Post</a>-->
+
+<a th:href="@{/posts/update/{id}(id=${post.id})}" class="create-post">Update Post</a>
+
+<div>
+        <h2 th:text="*{post.getTitle()}">Post Title</h2>
+        <p th:text="*{post.getContent()}">Post Content</p>
+        <p><strong>Author:</strong> <span th:text="*{post.user.getName()}">Author Name</span></p>
+        <p><strong>Published on:</strong> <span th:text="*{post.getPublishedAt()}">Date</span></p>
+</div>
+
+<a href="/posts">Back to Posts List</a>
+</body>
+</html>
