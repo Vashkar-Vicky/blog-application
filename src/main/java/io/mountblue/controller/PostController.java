@@ -11,9 +11,7 @@ import io.mountblue.service.TagService;
 import io.mountblue.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/posts")
@@ -54,10 +53,10 @@ public class PostController {
         return "posts/create-post";
     }
 
-    @PostMapping("/create")
-    public String createPost(@ModelAttribute Post post, @RequestParam String tags) {
+    @PostMapping("/createNew")
+    public String createPost(@ModelAttribute Post post, @RequestParam String tag) {
 
-        postService.createPost(post,tags);
+        postService.createPost(post,tag);
          return "redirect:/posts";
     }
 
@@ -68,10 +67,10 @@ public class PostController {
         return "posts/post-details";
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public String deletePost(@PathVariable UUID id) {
         postService.delete(id);
-        return "redirect:/";
+        return "redirect:/posts";
     }
 
     @GetMapping("/filter")
@@ -124,65 +123,29 @@ public class PostController {
         Post post = postService.getPostById(id);
         model.addAttribute("post", post);
 
-        String tagsInput = getTagsString(post.getTags());
-        model.addAttribute("tagsInput", tagsInput);
-        return "posts/update";
-    }
-    private String getTagsString(Set<Tags> tags) {
-        StringBuilder tagsInput = new StringBuilder();
-        for (Tags tag : tags) {
-            if (tagsInput.length() > 0) {
-                tagsInput.append(", ");
-            }
-            tagsInput.append(tag.getName());
-        }
-        return tagsInput.toString();
+        String tagsString = post.getTags().stream()
+                .map(tag -> tag.getName())
+                .collect(Collectors.joining(", "));
+        model.addAttribute("tagsInput", tagsString);
+
+        return "posts/post-update";
     }
 
+    @PostMapping("/update")
+    public String updatePost(@RequestParam("id") String id,
+                             @RequestParam("tagsInput") String tagsInput,
+                             @RequestParam("title") String title,
+                             @RequestParam("excerpt") String excerpt,
+                             @RequestParam("content") String content,Model model) {
+        UUID uuid = UUID.fromString(id);
+        Post post = postService.getPostById(uuid);
 
+        postService.updatePost(uuid, title, excerpt, content);
+        postService.updatePostTags(uuid, tagsInput);
 
-//    @PostMapping("/update")
-//    public String updatePost(@RequestParam("id") UUID id, Model model) {
-//        Post post = postService.getPostById(id);
-//        model.addAttribute("post", post); // Add the post to the model
-//
-//        // Add existing tags as a comma-separated string
-//        String tagsInput = getTagsString(post.getTags());
-//        model.addAttribute("tagsInput", tagsInput);
-//
-//        return "update_post"; // Thymeleaf template for updating
-//    }
-
-    // Handle form submission for updating an existing post
-//    @PostMapping("/update")
-//    public String updatePost(Post post, String tagsInput) {
-//        Set<Tags> tags = processTags(tagsInput);
-//        post.setTags(tags);
-//        postService.savePost(post);
-//        return "redirect:/posts";
-//    }
-
-    // Helper method to process the tags input (comma-separated)
-//    private Set<Tags> processTags(String tagsInput) {
-//        Set<Tags> tags = new HashSet<>();
-//        if (tagsInput != null && !tagsInput.isEmpty()) {
-//            String[] tagNames = tagsInput.split(",");
-//            for (String tagName : tagNames) {
-//                tagName = tagName.trim(); // Trim whitespace
-//                if (!tagName.isEmpty()) {
-//                    Tags tag = tagService.findByName(tagName);
-//                    if (tag == null) {
-//                        // Create a new tag if it doesn't exist
-//                        tag = new Tags();
-//                        tag.setName(tagName);
-//                        tagService.save(tag);
-//                    }
-//                    tags.add(tag);
-//                }
-//            }
-//        }
-//        return tags;
-//    }
+        model.addAttribute("post", post);
+        return "redirect:/posts";
+    }
 
     @PostMapping("/{id}/comment")
     public String addComment(@PathVariable UUID id, @ModelAttribute Comment comment) {

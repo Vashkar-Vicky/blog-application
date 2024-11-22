@@ -33,36 +33,11 @@ public class UserService {
          userRepository.deleteById(id);
     }
 
-    public User validateUser(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        if (user != null && user.getPassword().equals(password)) {
-            return user;
-        }
-        return null;
-    }
-
-
-    public User findById(UUID id) {
-        Optional<User> user = userRepository.findById(id);
-        return user.orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
-    }
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email); // Find user by email
-    }
-
-    public boolean emailExists(String email) {
-        return userRepository.findByEmail(email) != null;
-    }
-
-    public void save(User user) {
-        userRepository.save(user);
-    }
-
     public User findByUsername(String authorName) {
         return userRepository.findByName(authorName);
     }
 
-    public User getUserByEmail(String username) {
-        return userRepository.findByEmail(username);
+    public User getUserByName(String username) {
+        return userRepository.findByName(username);
     }
 }

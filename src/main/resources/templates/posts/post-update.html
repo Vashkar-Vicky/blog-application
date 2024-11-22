@@ -6,7 +6,6 @@
 <body>
 <h1>Update Post</h1>
 
-<!--<form action="/posts/update" method="post" th:object="${post}">-->
     <form action="#" th:action="@{/posts/update}" th:object="${post}" method="post">
         <input type="hidden" th:field="*{id}" />
 
@@ -18,12 +17,6 @@
 
         <label for="content">Content:</label>
         <textarea id="content" th:field="*{content}" placeholder="Enter post content" required></textarea><br/><br/>
-
-        <label for="author">Author:</label>
-        <input type="text" id="author" th:field="*{author}" placeholder="Enter author's name" required /><br/><br/>
-
-        <label for="isPublished">Published:</label>
-        <input type="checkbox" id="isPublished" th:field="*{isPublished}" /><br/><br/>
 
         <label for="tagsInput">Tags (comma-separated):</label>
         <input type="text" id="tagsInput" name="tagsInput" th:value="${tagsInput}" placeholder="Enter tags, e.g., Java, Spring, Backend" /><br/><br/>

@@ -36,23 +36,16 @@
 </head>
 <body>
 
-<h1>Create New Post</h1>
-
-<a href="/posts"><h2>Back to Posts List</h2></a>
-
-<form th:action="@{/posts/create}" th:object="${post}" method="post">
+<h1>Create a New Post</h1>
+<form th:action="@{/posts/createNew}" th:method="POST" th:object="${post}">
     <label for="title">Title:</label>
-    <input type="text" id="title" th:field="*{title}" required/><br/>
-
+    <input type="text" id="title" th:field="*{title}" required />
     <label for="excerpt">Excerpt:</label>
-    <input type="text" id="excerpt" th:field="*{excerpt}" required/><br/>
-
-    <label for="content">Content:</label><br/>
-    <textarea id="content" th:field="*{content}" rows="5" cols="50" required></textarea><br/>
-
-    <label for="tags">Tags (comma separated):</label><br/>
-    <input type="text" id="tags" name="tags" placeholder="e.g., Java, Spring, Backend"/><br/>
-
+    <input type="text" id="excerpt" th:field="*{excerpt}" required />
+    <label for="content">Content:</label>
+    <textarea id="content" th:field="*{content}" required></textarea>
+    <label for="tag">Tags (comma separated):</label>
+    <input type="text" id="tag" name="tag" required />
     <button type="submit">Create Post</button>
 </form>
 

@@ -1,6 +1,7 @@
 package io.mountblue.service;
 
 import io.mountblue.dao.PostRepository;
+import io.mountblue.dao.TagRepository;
 import io.mountblue.model.Post;
 import io.mountblue.model.Tags;
 import io.mountblue.model.User;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class PostService {
@@ -22,6 +25,9 @@ public class PostService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TagRepository tagRepository;
 
     public List<Post> getAllPosts() {
         return postRepository.findAll();
@@ -82,7 +88,7 @@ public class PostService {
 
     public void createPost(Post post, String tagsName) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userService.getUserByEmail(userDetails.getUsername());
+        User user = userService.getUserByName(userDetails.getUsername());
 
         if (user != null && user.getRole().equals("USER")) {
             post.setUser(user);
@@ -101,5 +107,33 @@ public class PostService {
             post.setTags(tagsSet);
         }
         postRepository.save(post);
+    }
+    public void updatePostTags(UUID postId, String tagsInput) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
+        Set<String> tagNames = Stream.of(tagsInput.split(","))
+                .map(String::trim)
+                .filter(tag -> !tag.isEmpty()) // Ignore empty tags
+                .collect(Collectors.toSet());
+        Set<Tags> updatedTags = new HashSet<>();
+        for (String tagName : tagNames) {
+            Tags tag = tagRepository.findByName(tagName);
+            updatedTags.add(tag);
+        }
+
+        post.setTags(updatedTags);
+        postRepository.save(post);
+    }
+
+
+    public void updatePost(UUID uuid, String title, String excerpt, String content) {
+        Optional<Post> optionalPost = postRepository.findById(uuid);
+        if (optionalPost.isPresent()) {
+            Post post = optionalPost.get();
+            post.setTitle(title);
+            post.setExcerpt(excerpt);
+            post.setContent(content);
+            postRepository.save(post);
+        }
     }
 }

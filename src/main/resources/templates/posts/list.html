@@ -70,11 +70,12 @@
     <p th:text="${post.excerpt}"></p>
     <p class="author">Author: <span th:text="${post.user.name}"></span></p> <!-- Access the User's name -->
     <p class="date">Published: <span th:text="${post.publishedAt}"></span></p>
-    <p class="tags">Tags:
-        <span th:each="tag, iterStat : ${post.tags}" th:text="${tag.name}"
-              th:if="${iterStat.index < post.tags.size() - 1}">, </span>
-        <span th:each="tag : ${post.tags}" th:text="${tag.name}"
-              th:if="${tag != post.tags[post.tags.size() - 1]}">, </span>
+    <p class="tags">
+        Tags:
+        <span th:each="tag, iterStat : ${post.tags}">
+        <span th:text="${tag.name}"></span>
+        <span th:if="${!iterStat.last}">, </span>
+    </span>
     </p>
 </div>
 
