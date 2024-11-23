@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,7 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests(authorize -> authorize
-                        .requestMatchers( "/register", "/blog/**", "/posts/**","/posts/delete/**").hasRole("USER")
+                        .requestMatchers( "/register", "/blog/**", "/posts/**","/posts/delete/{id}").hasRole("USER")
                         .requestMatchers("/create", "/edit/**").hasRole("USER")
                         .anyRequest().permitAll()
                 )
@@ -37,7 +36,11 @@ public class SecurityConfig {
                                 .permitAll()
 
                 )
-                .logout(LogoutConfigurer::permitAll);
+                .logout(logout->logout
+                        .logoutSuccessUrl("/posts")
+                        .permitAll()
+
+                );
 
         return http.build();
     }

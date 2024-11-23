@@ -3,6 +3,9 @@ package io.mountblue.service;
 import io.mountblue.dao.UserRepository;
 import io.mountblue.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +40,18 @@ public class UserService {
         return userRepository.findByName(authorName);
     }
 
-    public User getUserByName(String username) {
-        return userRepository.findByName(username);
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public User getAuthentication() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication != null && authentication.isAuthenticated() &&
+                !(authentication instanceof AnonymousAuthenticationToken)){
+            String username = authentication.getName();
+            return getUserByEmail(username);
+        }
+        return null;
     }
 }

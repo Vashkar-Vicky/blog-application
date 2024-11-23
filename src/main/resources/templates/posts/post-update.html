@@ -5,8 +5,8 @@
 </head>
 <body>
 <h1>Update Post</h1>
-
-    <form action="#" th:action="@{/posts/update}" th:object="${post}" method="post">
+<a th:href="@{'/' + ${post.id}}" th:text="${post.title}"></a>
+    <form action="#" th:action="@{/update}" th:object="${post}" method="post">
         <input type="hidden" th:field="*{id}" />
 
         <label for="title">Title:</label>

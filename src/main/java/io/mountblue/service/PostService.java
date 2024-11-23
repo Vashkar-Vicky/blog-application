@@ -6,6 +6,7 @@ import io.mountblue.model.Post;
 import io.mountblue.model.Tags;
 import io.mountblue.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -88,7 +89,7 @@ public class PostService {
 
     public void createPost(Post post, String tagsName) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userService.getUserByName(userDetails.getUsername());
+        User user = userService.getUserByEmail(userDetails.getUsername());
 
         if (user != null && user.getRole().equals("USER")) {
             post.setUser(user);
@@ -109,31 +110,49 @@ public class PostService {
         postRepository.save(post);
     }
     public void updatePostTags(UUID postId, String tagsInput) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
-        Set<String> tagNames = Stream.of(tagsInput.split(","))
-                .map(String::trim)
-                .filter(tag -> !tag.isEmpty()) // Ignore empty tags
-                .collect(Collectors.toSet());
-        Set<Tags> updatedTags = new HashSet<>();
-        for (String tagName : tagNames) {
-            Tags tag = tagRepository.findByName(tagName);
-            updatedTags.add(tag);
-        }
+          Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
 
-        post.setTags(updatedTags);
-        postRepository.save(post);
-    }
+        User user = userService.getUserByEmail(username);
+        if (user != null && user.getRole().equals("USER")) {
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
+            Set<String> tagNames = Stream.of(tagsInput.split(","))
+                    .map(String::trim)
+                    .filter(tag -> !tag.isEmpty())
+                    .collect(Collectors.toSet());
 
-    public void updatePost(UUID uuid, String title, String excerpt, String content) {
-        Optional<Post> optionalPost = postRepository.findById(uuid);
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            post.setTitle(title);
-            post.setExcerpt(excerpt);
-            post.setContent(content);
+            Set<Tags> updatedTags = new HashSet<>();
+            for (String tagName : tagNames) {
+                Tags tag = tagRepository.findByName(tagName);
+                updatedTags.add(tag);
+            }
+
+            post.setTags(updatedTags);
             postRepository.save(post);
         }
+    }
+
+    public void updatePost(UUID uuid, String title, String excerpt, String content){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userService.getUserByEmail(username);
+        if (user != null && user.getRole().equals("USER")) {
+            Optional<Post> optionalPost = postRepository.findById(uuid);
+            if (optionalPost.isPresent()) {
+                Post post = optionalPost.get();
+                post.setTitle(title);
+                post.setExcerpt(excerpt);
+                post.setContent(content);
+                postRepository.save(post);
+            }
+        }
+    }
+
+    public Post findPostWithComments(UUID postId) {
+        Optional<Post> post= postRepository.findById(postId);
+        return post.orElse(null);
     }
 }

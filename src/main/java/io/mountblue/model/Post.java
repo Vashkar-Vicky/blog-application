@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class Post {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(fetch =FetchType.LAZY)
     @JoinTable(
             name = "post_tags",
             joinColumns = @JoinColumn(name = "post_id"),
@@ -34,6 +35,8 @@ public class Post {
     )
     private Set<Tags> tags;
 
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Comment> comments;
 
     @PrePersist
     protected void onCreate() {

@@ -24,13 +24,14 @@
 </head>
 <body>
 <h1>Post Details</h1>
-<a th:href="@{'/posts/update/' + ${post.id}}">Update Post</a>
-<br>
 
-<form action="/posts/delete/${post.id}" method="post" onsubmit="return confirm('Are you sure you want to delete this post?');">
-    <input type="hidden" name="_method" value="DELETE">
-    <button type="submit">Delete</button>
-</form>
+<div th:if="${post.user.email == currentUser}">
+    <a th:href="@{'/update/' + ${post.id}}">Update Post</a>
+    <form th:action="@{/delete/{id}(id=${post.id})}" method="post" onsubmit="return confirm('Are you sure you want to delete this post?');">
+        <input type="hidden" name="_method" value="delete">
+        <button type="submit">Delete</button>
+    </form>
+</div>
 <div>
         <h2 th:text="*{post.getTitle()}">Post Title</h2>
         <p th:text="*{post.getContent()}">Post Content</p>
@@ -38,6 +39,40 @@
         <p><strong>Published on:</strong> <span th:text="*{post.getPublishedAt()}">Date</span></p>
 </div>
 
-<a href="/posts">Back to Posts List</a>
+<hr>
+<h2>Comments</h2>
+<div th:each="comment : ${post.comments}">
+    <p><strong th:text="${comment.name}"></strong> (<span th:text="${comment.email}"></span>)</p>
+    <p th:text="${comment.comment}"></p>
+    <div th:if="${#authentication.name == comment.email}">
+    <form th:action="@{/comments/{id}(id=${comment.id})}" method="post" style="display:inline;">
+        <input type="hidden" name="_method" value="PUT"/>
+        <input type="text" name="message" placeholder="Edit comment"/>
+        <input type="hidden" name="postId" th:value="${post.id}"/>
+        <button type="submit">Edit</button>
+    </form>
+
+    <form th:action="@{/comments/{id}(id=${comment.id})}" method="post" style="display:inline;">
+        <input type="hidden" name="_method" value="delete"/>
+        <input type="hidden" name="postId" th:value="${post.id}"/>
+        <button type="submit">Delete</button>
+    </form>
+    </div>
+    <hr>
+</div>
+
+<h3>Add a Comment</h3>
+
+<form th:action="@{/comments}" method="post" th:object="${comment}">
+<!--    <label for="comment">Comment:</label><br/>-->
+<!--    <textarea id="comment" th:field="*{comment}" rows="5" required></textarea><br/> &lt;!&ndash; 'content' should match the Comment class field &ndash;&gt;-->
+    <input type="hidden" name="postId" th:value="${post.id}"/>
+    <input type="text" name="message" placeholder="Add a comment" required/>
+
+    <button type="submit">Submit</button>
+</form>
+
+<a href="/">Back to Posts List</a>
+
 </body>
 </html>

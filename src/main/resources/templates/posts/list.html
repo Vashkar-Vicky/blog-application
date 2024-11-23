@@ -26,23 +26,29 @@
 </head>
 <body>
 
-<h1><a href="/posts" style="text-decoration: none; color: inherit;">Blog Posts</a></h1>
+<h1><a href="/" style="text-decoration: none; color: inherit;">Blog Posts</a></h1>
 
 <br>
-<a href="/posts/create" class="create-post">Create Post</a>
+<div th:if="${#authentication.name == 'anonymousUser'}">
+    <a href="/login" >Login</a>
+    <br>
+    <a href="/users/register">register</a>
+</div>
+<div th:if="${#authentication.name !='anonymousUser'}">
+    <a href="/logout">logout</a>
+    <a href="/create" class="create-post">Create Post</a>
+</div>
+
 <br>
-<a href="/login" >Login</a>
-<br>
-<a href="/users/register">register</a>
-<!-- Search Form -->
-<form th:action="@{/posts/search}" method="get">
+
+<form th:action="@{/search}" method="get">
     <label for="query">Search:</label>
     <input type="text" id="query" name="query" th:value="${searchQuery}" placeholder="Search by title or content" />
     <button type="submit">Search</button>
 </form>
 
 <!-- Filter Form -->
-<form th:action="@{/posts/filter}" method="get">
+<form th:action="@{/filter}" method="get">
     <label for="author">Author:</label>
     <input type="text" id="author" name="author" th:value="${author}" />
 
@@ -58,15 +64,11 @@
     <button type="submit">Filter</button>
 </form>
 
+<a href="/?sort=desc">Sort by Oldest</a>
+<a href="/?sort=asc">Sort by Recent</a>
 
-
-<!-- Sorting Links -->
-<a href="/posts?sort=desc">Sort by Oldest</a>
-<a href="/posts?sort=asc">Sort by Recent</a>
-
-<!-- Display Blog Posts -->
 <div th:each="post : ${posts}" class="post">
-    <h2><a th:href="@{'/posts/' + ${post.id}}" th:text="${post.title}"></a></h2>
+    <h2><a th:href="@{'/' + ${post.id}}" th:text="${post.title}"></a></h2>
     <p th:text="${post.excerpt}"></p>
     <p class="author">Author: <span th:text="${post.user.name}"></span></p> <!-- Access the User's name -->
     <p class="date">Published: <span th:text="${post.publishedAt}"></span></p>

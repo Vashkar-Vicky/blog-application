@@ -52,9 +52,4 @@ public class UserController {
         userService.deleteUser(id);
         return "redirect:/users";
     }
-
-    @GetMapping("/logout")
-    public String logout() {
-        return "redirect:/login";
-    }
 }

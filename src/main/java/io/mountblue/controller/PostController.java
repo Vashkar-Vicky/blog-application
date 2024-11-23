@@ -11,6 +11,7 @@ import io.mountblue.service.TagService;
 import io.mountblue.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/posts")
+@RequestMapping("/")
 public class PostController {
     @Autowired
     private PostService postService;
@@ -57,20 +58,26 @@ public class PostController {
     public String createPost(@ModelAttribute Post post, @RequestParam String tag) {
 
         postService.createPost(post,tag);
-         return "redirect:/posts";
+         return "redirect:/";
     }
 
     @GetMapping("/{id}")
     public String getPostDetails(@PathVariable UUID id, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
         Post post = postService.getPostById(id);
+        List<Comment> comments = commentService.getAllComment(id);
         model.addAttribute("post", post);
+        model.addAttribute("currentUser", currentUsername);
+        model.addAttribute("comment", comments);
         return "posts/post-details";
     }
 
     @DeleteMapping("/delete/{id}")
     public String deletePost(@PathVariable UUID id) {
         postService.delete(id);
-        return "redirect:/posts";
+        return "redirect:/";
     }
 
     @GetMapping("/filter")
@@ -139,19 +146,9 @@ public class PostController {
                              @RequestParam("content") String content,Model model) {
         UUID uuid = UUID.fromString(id);
         Post post = postService.getPostById(uuid);
-
         postService.updatePost(uuid, title, excerpt, content);
         postService.updatePostTags(uuid, tagsInput);
-
         model.addAttribute("post", post);
-        return "redirect:/posts";
-    }
-
-    @PostMapping("/{id}/comment")
-    public String addComment(@PathVariable UUID id, @ModelAttribute Comment comment) {
-        Post post = postService.getPostById(id);
-        comment.setPost(post);
-        commentService.save(comment);
-        return "redirect:/posts/" + id;
+        return "redirect:/";
     }
 }
