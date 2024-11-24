@@ -218,7 +218,7 @@
                 <form th:action="@{/comments/{id}(id=${comment.id})}" method="post">
                     <input type="hidden" name="_method" value="PUT"/>
                     <input type="text" name="message" placeholder="Edit comment" />
-                    <input type="hidden" name="postId" th:value="${post.id}"/>
+                    <inrput type="hidden" name="postId" th:value="${post.id}"/>
                     <button type="submit">Edit</button>
                 </form>
                 <form th:action="@{/comments/{id}(id=${comment.id})}" method="post">

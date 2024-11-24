@@ -6,6 +6,8 @@ import io.mountblue.model.Post;
 import io.mountblue.model.Tags;
 import io.mountblue.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,36 +32,60 @@ public class PostService {
     @Autowired
     private TagRepository tagRepository;
 
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public Page<Post> getAllPosts(Pageable pageable) {
+        return postRepository.findAll(pageable);
     }
 
     public Post getPostById(UUID id) {
         return postRepository.findById(id).orElse(null);
     }
 
-    public List<Post> getFilteredPosts(User user, String tags, LocalDateTime startDate, LocalDateTime endDate) {
+    public Page<Post> getFilteredPosts(User user, String tags, LocalDateTime startDate, LocalDateTime endDate,Pageable pageable) {
         String author = (user != null) ? user.getName() : null;
         System.out.println(tags);
 
+
+        // If no filters are provided, return all posts
+        if (author == null && (tags == null || tags.isEmpty()) && startDate == null && endDate == null) {
+            return postRepository.findAll(pageable);
+        }
+
+        // Filter by user only
         if (author != null && (tags == null || tags.isEmpty()) && startDate == null && endDate == null) {
-            return postRepository.findFilteredPostsByUser(author);
+            return postRepository.findFilteredPostsByUser(author, pageable);
         }
+
+        // Filter by date only
         if (author == null && (tags == null || tags.isEmpty())) {
-            return postRepository.filterByDate(startDate, endDate);
+            return postRepository.filterByDate(startDate, endDate, pageable);
         }
 
+        // Filter by tags only
         if (tags != null && !tags.isEmpty() && author == null && startDate == null && endDate == null) {
-            return postRepository.findFilteredPostsByTags(tags);
+            return postRepository.findFilteredPostsByTags(tags, pageable);
         }
 
+        // Filter by author and tags
         if (author != null && tags != null && !tags.isEmpty()) {
-            return postRepository.findByUserAndTagsAndDate(author, tags, startDate, endDate);
+            return postRepository.findByUserAndTagsAndDate(author, tags, startDate, endDate, pageable);
         }
-        if (author != null) {
-            return postRepository.findFilteredPostsByUserAndDate(author, startDate, endDate);
+
+        // Filter by author and date range
+        if (author != null && startDate != null && endDate != null) {
+            return postRepository.findFilteredPostsByUserAndDate(author, startDate, endDate, pageable);
         }
-        return postRepository.filterByDate(startDate, endDate);
+
+        // Filter by tags and date range
+        if (tags != null && !tags.isEmpty() && startDate != null && endDate != null) {
+            List<String> tagList = tags != null ? Arrays.asList(tags.split(",")) : null;
+
+            // Call the repository method
+            return postRepository.findFilteredPostsByTagsAndDate(tagList, startDate, endDate, pageable);
+//            return postRepository.findFilteredPostsByTagsAndDate(tags, startDate, endDate, pageable);
+        }
+
+        // Default case: filter by date range
+        return postRepository.filterByDate(startDate, endDate, pageable);
     }
 
     public List<Post> getAllPostsSortedByPublishedDateDesc() {
@@ -70,8 +96,8 @@ public class PostService {
         return postRepository.findAllByOrderByPublishedAtAsc();
     }
 
-    public List<Post> searchPosts(String query) {
-        return postRepository.searchPosts(query);
+    public Page<Post> searchPosts(String query,Pageable pageable) {
+        return postRepository.searchPosts(query,pageable);
     }
 
 

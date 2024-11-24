@@ -10,6 +10,9 @@ import io.mountblue.service.PostService;
 import io.mountblue.service.TagService;
 import io.mountblue.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,9 +44,14 @@ public class PostController {
     private TagService tagService;
 
     @GetMapping
-    public String getAllPosts( Model model) {
-        List<Post> posts = postService.getAllPosts();
-        model.addAttribute("posts", posts);
+    public String getAllPosts( @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size, Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> posts = postService.getAllPosts(pageable);
+        model.addAttribute("posts", posts.getContent());
+        model.addAttribute("totalPages", posts.getTotalPages());
+        model.addAttribute("currentPage", page);
+
         System.out.println(SecurityContextHolder.getContext().getAuthentication());
         return "posts/list";
     }
@@ -54,9 +62,8 @@ public class PostController {
         return "posts/create-post";
     }
 
-    @PostMapping("/createNew")
+    @PostMapping("/create")
     public String createPost(@ModelAttribute Post post, @RequestParam String tag) {
-
         postService.createPost(post,tag);
          return "redirect:/";
     }
@@ -85,13 +92,13 @@ public class PostController {
                               @RequestParam(required = false) String tag,
                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
                               Model model) {
 
         LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = (endDate != null) ? endDate.atStartOfDay().plusDays(1).minusNanos(1) : null; // Include full end date
-
         User user = null;
-
         if (author != null && !author.isEmpty()) {
             user = userService.findByUsername(author);
             if (user == null) {
@@ -99,8 +106,15 @@ public class PostController {
                 return "posts/list";
             }
         }
-        List<Post> filteredPosts = postService.getFilteredPosts(user, tag, startDateTime, endDateTime);
-        model.addAttribute("posts", filteredPosts);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> filteredPosts = postService.getFilteredPosts(user, tag, startDateTime, endDateTime, pageable);
+        model.addAttribute("posts", filteredPosts.getContent());
+        model.addAttribute("totalPages", filteredPosts.getTotalPages());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("author", author);
+        model.addAttribute("tag", tag);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
         return "posts/list";
     }
 
@@ -116,10 +130,15 @@ public class PostController {
     }
 
     @GetMapping("/search")
-    public String searchPosts(@RequestParam("query") String query, Model model) {
-        List<Post> posts = postService.searchPosts(query);
-        model.addAttribute("posts", posts);
+    public String searchPosts(@RequestParam("query") String query,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size, Model model) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Post> posts = postService.searchPosts(query, pageable);
+        model.addAttribute("posts", posts.getContent());
         model.addAttribute("query", query);
+        model.addAttribute("totalPages", posts.getTotalPages());
+        model.addAttribute("currentPage", page);
         return "posts/list";
     }
 

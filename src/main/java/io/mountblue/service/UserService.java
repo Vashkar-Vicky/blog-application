@@ -46,7 +46,6 @@ public class UserService {
 
     public User getAuthentication() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if(authentication != null && authentication.isAuthenticated() &&
                 !(authentication instanceof AnonymousAuthenticationToken)){
             String username = authentication.getName();
