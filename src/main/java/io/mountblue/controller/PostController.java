@@ -41,7 +41,7 @@ public class PostController {
     private TagService tagService;
 
     @GetMapping
-    public String getAllPosts(Model model) {
+    public String getAllPosts( Model model) {
         List<Post> posts = postService.getAllPosts();
         model.addAttribute("posts", posts);
         System.out.println(SecurityContextHolder.getContext().getAuthentication());
@@ -95,7 +95,6 @@ public class PostController {
         if (author != null && !author.isEmpty()) {
             user = userService.findByUsername(author);
             if (user == null) {
-                // Handle case where user is not found
                 model.addAttribute("error", "No user found with the username: " + author);
                 return "posts/list";
             }

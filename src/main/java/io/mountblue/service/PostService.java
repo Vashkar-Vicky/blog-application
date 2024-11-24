@@ -38,14 +38,6 @@ public class PostService {
         return postRepository.findById(id).orElse(null);
     }
 
-    public void savePost(Post post) {
-        postRepository.save(post);
-    }
-
-    public void deletePost(UUID id) {
-        postRepository.deleteById(id);
-    }
-
     public List<Post> getFilteredPosts(User user, String tags, LocalDateTime startDate, LocalDateTime endDate) {
         String author = (user != null) ? user.getName() : null;
         System.out.println(tags);
@@ -149,10 +141,5 @@ public class PostService {
                 postRepository.save(post);
             }
         }
-    }
-
-    public Post findPostWithComments(UUID postId) {
-        Optional<Post> post= postRepository.findById(postId);
-        return post.orElse(null);
     }
 }

@@ -4,82 +4,221 @@
     <meta charset="UTF-8">
     <title>Blog Posts</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        header {
+            text-align: center;
+            padding: 15px 0;
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        header h1 a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        header .auth-buttons a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 14px;
+        }
+
+        header .auth-buttons a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .action-bar form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-bar input,
+        .action-bar button,
+        .action-bar a.sort-button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .action-bar button {
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .action-bar button:hover {
+            background-color: #218838;
+        }
+
+        .action-bar a.sort-button {
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .action-bar a.sort-button:hover {
+            background-color: #0056b3;
+        }
+
+        .action-bar .create-post {
+            background-color: #ffc107;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .action-bar .create-post:hover {
+            background-color: #e0a800;
+        }
+
         .post {
             border: 1px solid #ddd;
-            padding: 20px;
-            margin-bottom: 20px;
             border-radius: 8px;
-            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        h2 {
-            margin-top: 0;
+
+        .post h2 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
         }
-        .tags {
-            color: #888;
-            font-size: 14px;
+
+        .post h2 a {
+            text-decoration: none;
+            color: #333;
         }
-        .author, .date {
+
+        .post h2 a:hover {
+            color: #007bff;
+        }
+
+        .post p {
+            margin: 5px 0;
             font-size: 14px;
             color: #555;
+        }
+
+        .tags span {
+            display: inline-block;
+            margin-right: 5px;
+            padding: 2px 6px;
+            background-color: #e7f3ff;
+            color: #007bff;
+            border-radius: 4px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            background-color: #f8f9fa;
+            color: #555;
+            border-top: 1px solid #ddd;
         }
     </style>
 </head>
 <body>
 
-<h1><a href="/" style="text-decoration: none; color: inherit;">Blog Posts</a></h1>
+<header>
+    <div class="nav-bar">
+        <h1><a href="/">Blog Posts</a></h1>
+        <div class="auth-buttons">
+            <div th:if="${#authentication.name =='anonymousUser'}">
+                <a href="/login">Login</a>
+                <a href="/users/register">Register</a>
+            </div>
+            <div th:if="${#authentication.name !='anonymousUser'}">
+             <a href="/logout">Logout</a><a href="/create" class="create-post">Create Post</a>
+            </div>
+        </div>
+    </div>
+</header>
 
-<br>
-<div th:if="${#authentication.name == 'anonymousUser'}">
-    <a href="/login" >Login</a>
-    <br>
-    <a href="/users/register">register</a>
+<div class="container">
+    <div class="action-bar">
+        <form th:action="@{/search}" method="get">
+            <input type="text" id="query" name="query" th:value="${query}" placeholder="Search by title or content" />
+            <button type="submit">Search</button>
+        </form>
+        <form th:action="@{/filter}" method="get">
+            <input type="text" id="author" name="author" th:value="${author}" placeholder="Filter by author" />
+            <input type="text" id="tag" name="tag" th:value="${tag != null ? tag : ''}" placeholder="Filter by tags" />
+            <input type="date" id="startDate" name="startDate" th:value="${startDate}" />
+            <input type="date" id="endDate" name="endDate" th:value="${endDate}" />
+            <button type="submit">Filter</button>
+        </form>
+
+    </div>
+
+    <div class="action-bar">
+        <a href="/?sort=desc" class="sort-button">Sort by Oldest</a>
+        <a href="/?sort=asc" class="sort-button">Sort by Recent</a>
+    </div>
+
+    <div th:each="post : ${posts}" class="post">
+        <h2><a th:href="@{'/' + ${post.id}}" th:text="${post.title}"></a></h2>
+        <p th:text="${post.excerpt}"></p>
+        <p>Author: <span th:text="${post.user.name}"></span></p>
+        <p>Published: <span th:text="${post.publishedAt}"></span></p>
+        <div class="tags">
+            <span th:each="tag, iterStat : ${post.tags}" th:text="${tag.name}"></span>
+        </div>
+    </div>
 </div>
-<div th:if="${#authentication.name !='anonymousUser'}">
-    <a href="/logout">logout</a>
-    <a href="/create" class="create-post">Create Post</a>
-</div>
 
-<br>
-
-<form th:action="@{/search}" method="get">
-    <label for="query">Search:</label>
-    <input type="text" id="query" name="query" th:value="${searchQuery}" placeholder="Search by title or content" />
-    <button type="submit">Search</button>
-</form>
-
-<!-- Filter Form -->
-<form th:action="@{/filter}" method="get">
-    <label for="author">Author:</label>
-    <input type="text" id="author" name="author" th:value="${author}" />
-
-    <label for="tag">Tags:</label>
-    <input type="text" id="tag" name="tag" th:value="${tag != null ? tag : ''}" />
-
-    <label for="startDate">Start Date:</label>
-    <input type="date" id="startDate" name="startDate" th:value="${startDate}" />
-
-    <label for="endDate">End Date:</label>
-    <input type="date" id="endDate" name="endDate" th:value="${endDate}" />
-
-    <button type="submit">Filter</button>
-</form>
-
-<a href="/?sort=desc">Sort by Oldest</a>
-<a href="/?sort=asc">Sort by Recent</a>
-
-<div th:each="post : ${posts}" class="post">
-    <h2><a th:href="@{'/' + ${post.id}}" th:text="${post.title}"></a></h2>
-    <p th:text="${post.excerpt}"></p>
-    <p class="author">Author: <span th:text="${post.user.name}"></span></p> <!-- Access the User's name -->
-    <p class="date">Published: <span th:text="${post.publishedAt}"></span></p>
-    <p class="tags">
-        Tags:
-        <span th:each="tag, iterStat : ${post.tags}">
-        <span th:text="${tag.name}"></span>
-        <span th:if="${!iterStat.last}">, </span>
-    </span>
-    </p>
-</div>
+<footer>
+    <p>&copy; 2024 Blog Application</p>
+</footer>
 
 </body>
 </html>

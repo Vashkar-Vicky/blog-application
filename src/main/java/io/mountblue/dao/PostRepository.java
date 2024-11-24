@@ -1,7 +1,7 @@
 package io.mountblue.dao;
 
 import io.mountblue.model.Post;
-import io.mountblue.model.User;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,13 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PostRepository extends JpaRepository<Post, UUID> {
-    @Query("SELECT p FROM Post p JOIN p.tags t WHERE p.user = :user AND t.name IN :tags " +
-            "AND (:startDate IS NULL OR p.publishedAt >= :startDate) " +
-            "AND (:endDate IS NULL OR p.publishedAt <= :endDate)")
-    List<Post> findFilteredPosts(@Param("user") User user,
-                                 @Param("tags") List<String> tags,
-                                 @Param("startDate") LocalDateTime startDate,
-                                 @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT p FROM Post p WHERE p.publishedAt BETWEEN :startDate AND :endDate")
     List<Post> filterByDate(@Param("startDate") LocalDateTime startDate,
@@ -39,26 +32,22 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             nativeQuery = true)
     List<Post> searchPosts(@Param("query") String query);
 
-@Query("SELECT p FROM Post p WHERE p.user.name = :name")
-List<Post> findFilteredPostsByUser(@Param("name") String name);
+    @Query("SELECT p FROM Post p WHERE p.user.name = :name")
+    List<Post> findFilteredPostsByUser(@Param("name") String name);
 
-@Query("SELECT p FROM Post p JOIN p.tags t WHERE t.name = :name")
-List<Post> findFilteredPostsByTags(@Param("name") String name);
+    @Query("SELECT p FROM Post p JOIN p.tags t WHERE t.name = :name")
+    List<Post> findFilteredPostsByTags(@Param("name") String name);
 
-@Query("SELECT p FROM Post p JOIN p.tags t WHERE p.user.name = :author AND t.name = :tag AND p.publishedAt BETWEEN :startDate AND :endDate")
-List<Post> findByUserAndTagsAndDate(
+    @Query("SELECT p FROM Post p JOIN p.tags t WHERE p.user.name = :author AND t.name = :tag " +
+            "AND p.publishedAt BETWEEN :startDate AND :endDate")
+    List<Post> findByUserAndTagsAndDate(
         @Param("author") String author,
         @Param("tag") String tag,
         @Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate);
 
-
-
     @Query("SELECT p FROM Post p WHERE p.user.name = :author AND p.publishedAt BETWEEN :startDate AND :endDate")
-    List<Post> findFilteredPostsByUserAndDate(@Param("author") String author, @Param("startDate") LocalDateTime startDate,
-                                                  @Param("endDate") LocalDateTime endDate);
-
-
-    List<Post> findByUser(User user);
-
+    List<Post> findFilteredPostsByUserAndDate(@Param("author") String author,
+                                              @Param("startDate") LocalDateTime startDate,
+                                              @Param("endDate") LocalDateTime endDate);
 }
