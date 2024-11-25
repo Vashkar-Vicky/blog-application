@@ -6,11 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,13 +19,6 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-    public Optional<User> getUserById(UUID id) {
-        return userRepository.findById(id);
-    }
-
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
@@ -34,10 +26,6 @@ public class UserService {
 
     public void deleteUser(UUID id) {
          userRepository.deleteById(id);
-    }
-
-    public User findByUsername(String authorName) {
-        return userRepository.findByName(authorName);
     }
 
     public User getUserByEmail(String email) {
@@ -52,5 +40,18 @@ public class UserService {
             return getUserByEmail(username);
         }
         return null;
+    }
+    public boolean isAdmin(){
+        String email = getCurrentUserEmail();
+        User user = userRepository.findByEmail(email);
+        return user!=null && "ADMIN".equals(user.getRole());
+    }
+    private String getCurrentUserEmail(){
+        Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(principle instanceof UserDetails){
+            return ((UserDetails) principle).getUsername();
+        }else{
+            return principle.toString();
+        }
     }
 }

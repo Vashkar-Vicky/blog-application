@@ -3,26 +3,20 @@ package io.mountblue.controller;
 import io.mountblue.dao.UserRepository;
 import io.mountblue.model.Comment;
 import io.mountblue.model.Post;
-import io.mountblue.model.Tags;
-import io.mountblue.model.User;
 import io.mountblue.service.CommentService;
 import io.mountblue.service.PostService;
 import io.mountblue.service.TagService;
 import io.mountblue.service.UserService;
-import org.hibernate.annotations.Fetch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,7 +48,7 @@ public class PostController {
         model.addAttribute("currentPage", page);
 
         System.out.println(SecurityContextHolder.getContext().getAuthentication());
-        return "posts/list";
+        return "posts/dashboard";
     }
 
     @GetMapping("/create")
@@ -74,11 +68,13 @@ public class PostController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
 
+        boolean isAdmin = userService.isAdmin();
         Post post = postService.getPostById(id);
         List<Comment> comments = commentService.getAllComment(id);
         model.addAttribute("post", post);
         model.addAttribute("currentUser", currentUsername);
         model.addAttribute("comment", comments);
+        model.addAttribute("isAdmin", isAdmin);
         return "posts/post-details";
     }
 
@@ -103,7 +99,7 @@ public class PostController {
         model.addAttribute("posts", postPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", postPage.getTotalPages());
-        return "posts/list";
+        return "posts/dashboard";
     }
 
 
@@ -114,7 +110,7 @@ public class PostController {
         } else {
             model.addAttribute("posts", postService.getAllPostsSortedByPublishedDateAsc());
         }
-        return "posts/list";
+        return "posts/dashboard";
     }
 
     @GetMapping("/search")
@@ -127,7 +123,7 @@ public class PostController {
         model.addAttribute("query", query);
         model.addAttribute("totalPages", posts.getTotalPages());
         model.addAttribute("currentPage", page);
-        return "posts/list";
+        return "posts/dashboard";
     }
 
 
@@ -152,10 +148,12 @@ public class PostController {
                              @RequestParam("content") String content, Model model) {
         UUID uuid = UUID.fromString(id);
         Post post = postService.getPostById(uuid);
+        boolean isAdmin = userService.isAdmin();
         postService.updatePost(uuid, title, excerpt, content);
         postService.updatePostTags(uuid, tagsInput);
         model.addAttribute("post", post);
-        return "redirect:/";
+        model.addAttribute("isAdmin", isAdmin);
+        return "posts/post-details";
     }
 
     @GetMapping("/sort")
@@ -172,7 +170,7 @@ public class PostController {
         model.addAttribute("pageSize", sortedPosts.getSize());
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("ascending", ascending);
-        return "posts/list";
+        return "posts/dashboard";
     }
 
 }

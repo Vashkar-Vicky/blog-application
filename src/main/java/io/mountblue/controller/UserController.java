@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -32,19 +31,19 @@ public class UserController {
     }
 
 
-    @GetMapping
-    public String getAllUsers(Model model) {
-        List<User> users = userService.getAllUsers();
-        model.addAttribute("users", users);
-        return "users/list";
-    }
-
-    @GetMapping("/{id}")
-    public String getUserById(@PathVariable("id") UUID id, Model model) {
-        User user = userService.getUserById(id).orElseThrow(()->new RuntimeException("User not found"));
-        model.addAttribute("user", user);
-        return "users/detail";
-    }
+//    @GetMapping
+//    public String getAllUsers(Model model) {
+//        List<User> users = userService.getAllUsers();
+//        model.addAttribute("users", users);
+//        return "users/list";
+//    }
+//
+//    @GetMapping("/{id}")
+//    public String getUserById(@PathVariable("id") UUID id, Model model) {
+//        User user = userService.getUserById(id).orElseThrow(()->new RuntimeException("User not found"));
+//        model.addAttribute("user", user);
+//        return "users/detail";
+//    }
 
 
     @DeleteMapping("/{id}")

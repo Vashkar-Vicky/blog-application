@@ -165,6 +165,33 @@
             color: #555;
             border-top: 1px solid #ddd;
         }
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            margin: 0 5px;
+        }
+
+        nav ul li a {
+            display: block;
+            padding: 10px 15px;
+            background-color: #79beda;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        nav ul li a:hover {
+            background-color: #0590f4;
+        }
+
+        nav ul li.active a {
+            background-color: #0590f4;
+        }
 
     </style>
 </head>
@@ -226,7 +253,8 @@
     <ul>
         <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
             th:classappend="${i == currentPage} ? 'active' : ''">
-            <a th:href="@{'/filter'(page=${i}, size=${size}, author=${author}, tag=${tag}, startDate=${startDate}, endDate=${endDate})}"
+            <a th:href="@{'/filter'(page=${i}, size=${size}, author=${author}, tag=${tag},
+            startDate=${startDate}, endDate=${endDate})}"
                th:text="${i + 1}"></a>
         </li>
     </ul>

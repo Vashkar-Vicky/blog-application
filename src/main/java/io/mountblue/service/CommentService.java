@@ -1,7 +1,6 @@
 package io.mountblue.service;
 
 import io.mountblue.dao.CommentRepository;
-import io.mountblue.dao.PostRepository;
 import io.mountblue.model.Comment;
 import io.mountblue.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
