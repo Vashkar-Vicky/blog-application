@@ -43,5 +43,9 @@ public class CommentService {
     public void deleteComment(UUID commentId) {
         commentRepository.deleteById(commentId);
         }
+
+    public boolean existsById(UUID commentId) {
+        return commentRepository.existsById(commentId);
     }
+}
 

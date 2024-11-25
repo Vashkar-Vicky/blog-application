@@ -54,4 +54,8 @@ public class UserService {
             return principle.toString();
         }
     }
+
+    public boolean existsById(UUID id) {
+        return userRepository.existsById(id);
+    }
 }

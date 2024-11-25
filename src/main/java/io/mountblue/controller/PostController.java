@@ -1,6 +1,7 @@
 package io.mountblue.controller;
 
 import io.mountblue.dao.UserRepository;
+import io.mountblue.exception.ResourceNotFoundException;
 import io.mountblue.model.Comment;
 import io.mountblue.model.Post;
 import io.mountblue.service.CommentService;
@@ -27,16 +28,10 @@ public class PostController {
     private PostService postService;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
     private CommentService commentService;
-
-    @Autowired
-    private TagService tagService;
 
     @GetMapping
     public String getAllPosts(@RequestParam(defaultValue = "0") int page,
@@ -65,11 +60,14 @@ public class PostController {
 
     @GetMapping("/{id}")
     public String getPostDetails(@PathVariable UUID id, Model model) {
+
+        Post post = postService.getPostById(id);
+        if (post == null) {
+            throw new ResourceNotFoundException("Post with ID " + id + " not found.");
+        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
-
         boolean isAdmin = userService.isAdmin();
-        Post post = postService.getPostById(id);
         List<Comment> comments = commentService.getAllComment(id);
         model.addAttribute("post", post);
         model.addAttribute("currentUser", currentUsername);
@@ -126,7 +124,6 @@ public class PostController {
         return "posts/dashboard";
     }
 
-
     @GetMapping("/update/{id}")
     public String updatePostForm(@PathVariable UUID id, Model model) {
         Post post = postService.getPostById(id);
@@ -146,14 +143,30 @@ public class PostController {
                              @RequestParam("title") String title,
                              @RequestParam("excerpt") String excerpt,
                              @RequestParam("content") String content, Model model) {
-        UUID uuid = UUID.fromString(id);
-        Post post = postService.getPostById(uuid);
-        boolean isAdmin = userService.isAdmin();
-        postService.updatePost(uuid, title, excerpt, content);
-        postService.updatePostTags(uuid, tagsInput);
-        model.addAttribute("post", post);
-        model.addAttribute("isAdmin", isAdmin);
-        return "posts/post-details";
+        try {
+            UUID uuid = UUID.fromString(id);
+            Post post = postService.getPostById(uuid);
+            if (post == null) {
+                throw new ResourceNotFoundException("Post with ID " + id + " not found.");
+            }
+            postService.updatePost(uuid, title, excerpt, content);
+            postService.updatePostTags(uuid, tagsInput);
+
+            boolean isAdmin = userService.isAdmin();
+            model.addAttribute("post", post);
+            model.addAttribute("isAdmin", isAdmin);
+            return "posts/post-details";
+
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", "Invalid post ID format.");
+            return "error/400";
+        } catch (ResourceNotFoundException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "error/404";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "An unexpected error occurred. Please try again.");
+            return "error/500";
+        }
     }
 
     @GetMapping("/sort")

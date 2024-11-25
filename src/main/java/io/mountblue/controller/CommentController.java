@@ -1,5 +1,6 @@
 package io.mountblue.controller;
 
+import io.mountblue.exception.CommentNotFoundException;
 import io.mountblue.service.CommentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +25,18 @@ public class CommentController {
     @PutMapping("/{id}")
     public String updateComment(@PathVariable("id") UUID commentId, @RequestParam String message,
                                 @RequestParam String postId) {
-        commentService.updateComment(commentId,message);
+        if (!commentService.existsById(commentId)) {
+            throw new CommentNotFoundException("Comment with ID " + commentId + " not found");
+        }
+        commentService.updateComment(commentId, message);
         return "redirect:/" + postId;
     }
 
     @DeleteMapping("/{id}")
     public String deleteComment(@PathVariable("id") UUID commentId, @RequestParam UUID postId) {
+        if (!commentService.existsById(commentId)) {
+            throw new CommentNotFoundException("Comment with ID " + commentId + " not found");
+        }
         commentService.deleteComment(commentId);
         return "redirect:/" + postId;
     }
