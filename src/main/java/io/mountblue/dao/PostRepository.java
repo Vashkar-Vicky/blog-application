@@ -21,12 +21,14 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     List<Post> findAllByOrderByPublishedAtAsc();
 
     @Query(value = "SELECT p.* FROM post p " +
+            "JOIN users u ON p.user_id = u.id " +
             "WHERE to_tsvector('english', p.title || ' ' || p.content) " +
             " @@ to_tsquery('english', replace(:query, ' ', ' & ')) " +
             "OR EXISTS (SELECT 1 FROM post_tags pt " +
             "JOIN tags t ON pt.tag_id = t.id " +
             "WHERE pt.post_id = p.id " +
-            "AND to_tsvector('english', t.name) @@ to_tsquery('english', replace(:query, ' ', ' & ')))",
+            "AND to_tsvector('english', t.name) @@ to_tsquery('english', replace(:query, ' ', ' & '))) " +
+            "OR to_tsvector('english', u.name) @@ to_tsquery('english', replace(:query, ' ', ' & '))",
             nativeQuery = true)
     Page<Post> searchPosts(@Param("query") String query, Pageable pageable);
 

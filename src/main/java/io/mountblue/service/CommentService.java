@@ -14,9 +14,6 @@ import java.util.UUID;
 public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
-
-    @Autowired
-    private PostRepository postRepository;
     @Autowired
     private UserService userService;
     @Autowired
@@ -30,10 +27,6 @@ public class CommentService {
         comment.setComment(message);
         comment.setPost(postService.getPostById(postId));
         commentRepository.save(comment);
-    }
-
-    public Comment getById(UUID id) {
-        return commentRepository.findById(id).orElse(null);
     }
 
     public List<Comment> getAllComment(UUID id) {

@@ -196,6 +196,7 @@
     <div class="post">
         <h2 th:text="*{post.getTitle()}">Post Title</h2>
         <p th:text="*{post.getContent()}">Post Content</p>
+        <p th:text="${post.excerpt}"></p>
         <p class="author"><strong>Author:</strong> <span th:text="*{post.user.getName()}">Author Name</span></p>
         <p class="date"><strong>Published on:</strong> <span th:text="*{post.getPublishedAt()}">Date</span></p>
     </div>
@@ -219,7 +220,7 @@
                 <form th:action="@{/comments/{id}(id=${comment.id})}" method="post">
                     <input type="hidden" name="_method" value="PUT"/>
                     <input type="text" name="message" placeholder="Edit comment" />
-                    <inrput type="hidden" name="postId" th:value="${post.id}"/>
+                    <input type="hidden" name="postId" th:value="${post.id}"/>
                     <button type="submit">Edit</button>
                 </form>
                 <form th:action="@{/comments/{id}(id=${comment.id})}" method="post">
@@ -232,14 +233,15 @@
     </div>
 
     <div class="add-comment">
+        <div th:if="${#authentication.name !='anonymousUser'}">
         <h3>Add a Comment</h3>
         <form th:action="@{/comments}" method="post">
             <input type="hidden" name="postId" th:value="${post.id}" />
             <input type="text" name="message" placeholder="Add a comment" required />
             <button type="submit">Submit</button>
         </form>
+        </div>
     </div>
-
     <a href="/" class="back-link">Back to Posts List</a>
 </div>
 

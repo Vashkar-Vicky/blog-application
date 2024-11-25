@@ -84,7 +84,7 @@ public class PostService {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userService.getUserByEmail(userDetails.getUsername());
 
-        if (user != null && user.getRole().equals("USER")) {
+        if ((user != null && user.getRole().equals("USER")) ||  (user!=null && user.getRole().equals("ADMIN"))) {
             post.setUser(user);
             post.setPublished(true);
         }
@@ -107,7 +107,7 @@ public class PostService {
         String username = authentication.getName();
 
         User user = userService.getUserByEmail(username);
-        if (user != null && user.getRole().equals("USER")) {
+        if ((user != null && user.getRole().equals("USER")) || (user!=null && user.getRole().equals("ADMIN"))) {
             Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
 
@@ -132,7 +132,7 @@ public class PostService {
         String username = authentication.getName();
 
         User user = userService.getUserByEmail(username);
-        if (user != null && user.getRole().equals("USER")) {
+        if (user != null && user.getRole().equals("USER") || (user!=null && user.getRole().equals("ADMIN"))) {
             Optional<Post> optionalPost = postRepository.findById(uuid);
             if (optionalPost.isPresent()) {
                 Post post = optionalPost.get();
