@@ -218,7 +218,8 @@
         <div th:each="comment : ${post.comments}" class="comment">
             <p><strong th:text="${comment.name}"></strong> (<span th:text="${comment.email}"></span>)</p>
             <p th:text="${comment.comment}"></p>
-                <div th:if="${#authentication.name == comment.email or #authentication.name == post.user.email}">
+                <div th:if="${#authentication.name == comment.email || #authentication.name == post.user.email
+                || isAdmin}">
                 <form th:action="@{/comments/{id}(id=${comment.id})}" method="post">
                     <input type="hidden" name="_method" value="PUT"/>
                     <input type="text" name="message" placeholder="Edit comment" />
