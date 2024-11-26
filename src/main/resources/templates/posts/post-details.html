@@ -200,6 +200,9 @@
 
         <p class="author"><strong>Author:</strong> <span th:text="*{post.user.getName()}">Author Name</span></p>
         <p class="date"><strong>Published on:</strong> <span th:text="*{post.getPublishedAt()}">Date</span></p>
+        <div class="tags">
+            <span th:each="tag, iterStat : ${post.tags}" th:text="${tag.name}"></span>
+        </div>
     </div>
     <div th:if="${post.user.email == currentUser || isAdmin}"  class="actions">
         <a th:href="@{'/update/' + ${post.id}}">Update Post</a>

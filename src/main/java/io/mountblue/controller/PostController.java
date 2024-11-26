@@ -1,13 +1,12 @@
 package io.mountblue.controller;
 
-import io.mountblue.dao.UserRepository;
 import io.mountblue.exception.ResourceNotFoundException;
 import io.mountblue.model.Comment;
 import io.mountblue.model.Post;
 import io.mountblue.service.CommentService;
 import io.mountblue.service.PostService;
-import io.mountblue.service.TagService;
 import io.mountblue.service.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -88,8 +87,7 @@ public class PostController {
                           @RequestParam(required = false) String endDate,
                           @RequestParam(required = false) String tag,
                           @RequestParam(defaultValue = "0") int page,
-                          @RequestParam(defaultValue = "10") int size,
-                          Model model) {
+                          @RequestParam(defaultValue = "10") int size, Model model) {
 
         Pageable pageable = PageRequest.of(page, size);
         Page<Post> postPage = postService.filterPosts(author, startDate, endDate, tag, pageable);
@@ -129,9 +127,8 @@ public class PostController {
         Post post = postService.getPostById(id);
         model.addAttribute("post", post);
 
-        String tagsString = post.getTags().stream()
-                .map(tag -> tag.getName())
-                .collect(Collectors.joining(", "));
+        String tagsString = post.getTags().stream().map(tag ->
+                tag.getName()).collect(Collectors.joining(", "));
         model.addAttribute("tagsInput", tagsString);
 
         return "posts/post-update";
@@ -164,18 +161,17 @@ public class PostController {
             model.addAttribute("errorMessage", e.getMessage());
             return "error/404";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "An unexpected error occurred. Please try again.");
+            model.addAttribute("errorMessage", "Please try again.");
             return "error/500";
         }
     }
 
     @GetMapping("/sort")
-    public String sortPosts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "publishedAt") String sortBy,
-            @RequestParam(defaultValue = "true") boolean ascending,
-            Model model) {
+    public String sortPosts(@RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "10") int size,
+                            @RequestParam(defaultValue = "publishedAt") String sortBy,
+                            @RequestParam(defaultValue = "true") boolean ascending,
+                            Model model) {
         Page<Post> sortedPosts = postService.sortPosts(page, size, sortBy, ascending);
         model.addAttribute("posts", sortedPosts.getContent());
         model.addAttribute("currentPage", sortedPosts.getNumber());

@@ -119,6 +119,11 @@ public class PostService {
             Set<Tags> updatedTags = new HashSet<>();
             for (String tagName : tagNames) {
                 Tags tag = tagRepository.findByName(tagName);
+                if (tag == null) {
+                    tag = new Tags();
+                    tag.setName(tagName);
+                    tagRepository.save(tag);
+                }
                 updatedTags.add(tag);
             }
 
