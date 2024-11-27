@@ -1,6 +1,6 @@
 package io.mountblue.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,9 +17,10 @@ public class User {
     private String role;
     private String name;
     private String email;
+    @JsonIgnore
     private String password;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
-//    @JsonManagedReference
     List<Post> post;
 }

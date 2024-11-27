@@ -14,12 +14,6 @@ import java.util.UUID;
 
 public interface PostRepository extends JpaRepository<Post, UUID> {
 
-    @Query("SELECT p FROM Post p ORDER BY p.publishedAt DESC")
-    List<Post> findAllByOrderByPublishedAtDesc();
-
-    @Query("SELECT p FROM Post p ORDER BY p.publishedAt ASC")
-    List<Post> findAllByOrderByPublishedAtAsc();
-
     @Query(value = "SELECT p.* FROM post p " +
             "JOIN users u ON p.user_id = u.id " +
             "WHERE to_tsvector('english', p.title || ' ' || p.content) " +

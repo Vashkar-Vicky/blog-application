@@ -58,7 +58,6 @@ public class PostRestController {
         if (post == null) {
             throw new ResourceNotFoundException("Post with ID " + id + " not found.");
         }
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
         boolean isAdmin = userService.isAdmin();

@@ -64,14 +64,6 @@ public class PostService {
     return postRepository.filterPosts(authorNameList, startDateTime, endDateTime, tagNameList, pageable);
     }
 
-    public List<Post> getAllPostsSortedByPublishedDateDesc() {
-        return postRepository.findAllByOrderByPublishedAtDesc();
-    }
-
-    public Object getAllPostsSortedByPublishedDateAsc() {
-        return postRepository.findAllByOrderByPublishedAtAsc();
-    }
-
     public Page<Post> searchPosts(String query,Pageable pageable) {
         return postRepository.searchPosts(query,pageable);
     }

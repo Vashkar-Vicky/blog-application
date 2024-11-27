@@ -98,17 +98,6 @@ public class PostController {
         return "posts/dashboard";
     }
 
-
-    @GetMapping("/posts")
-    public String getAllPosts(@RequestParam(defaultValue = "asc") String sort, Model model) {
-        if ("desc".equalsIgnoreCase(sort)) {
-            model.addAttribute("posts", postService.getAllPostsSortedByPublishedDateDesc());
-        } else {
-            model.addAttribute("posts", postService.getAllPostsSortedByPublishedDateAsc());
-        }
-        return "posts/dashboard";
-    }
-
     @GetMapping("/search")
     public String searchPosts(@RequestParam("query") String query,
                               @RequestParam(defaultValue = "0") int page,
@@ -140,7 +129,7 @@ public class PostController {
                              @RequestParam("title") String title,
                              @RequestParam("excerpt") String excerpt,
                              @RequestParam("content") String content, Model model) {
-        try {
+
             UUID uuid = UUID.fromString(id);
             Post post = postService.getPostById(uuid);
             if (post == null) {
@@ -153,17 +142,6 @@ public class PostController {
             model.addAttribute("post", post);
             model.addAttribute("isAdmin", isAdmin);
             return "posts/post-details";
-
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("errorMessage", "Invalid post ID format.");
-            return "error/400";
-        } catch (ResourceNotFoundException e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            return "error/404";
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", "Please try again.");
-            return "error/500";
-        }
     }
 
     @GetMapping("/sort")
