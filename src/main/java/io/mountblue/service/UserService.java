@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -57,5 +58,8 @@ public class UserService {
 
     public boolean existsById(UUID id) {
         return userRepository.existsById(id);
+    }
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }

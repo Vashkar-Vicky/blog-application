@@ -1,5 +1,6 @@
 package io.mountblue.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,5 +20,6 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user")
+//    @JsonManagedReference
     List<Post> post;
 }

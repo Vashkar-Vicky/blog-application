@@ -39,6 +39,10 @@ public class CommentService {
         comment.setComment(message);
         commentRepository.save(comment);
     }
+    public List<Comment> getAllComments() {
+        return commentRepository.findAll();
+    }
+
 
     public void deleteComment(UUID commentId) {
         commentRepository.deleteById(commentId);

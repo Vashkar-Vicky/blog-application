@@ -202,11 +202,12 @@
         <h1><a href="/">Blog Posts</a></h1>
         <div class="auth-buttons">
             <div th:if="${#authentication.name =='anonymousUser'}">
-                <a href="/login">Login</a>
+            <a href="/login">Login</a>
                 <a href="/users/register">Register</a>
             </div>
             <div th:if="${#authentication.name !='anonymousUser'}">
-             <a href="/logout">Logout</a>
+
+            <a href="/logout">Logout</a>
                 <a href="/create" class="create-post">Create Post</a>
             </div>
         </div>
