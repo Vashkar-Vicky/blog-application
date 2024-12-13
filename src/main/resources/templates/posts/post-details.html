@@ -239,7 +239,7 @@
     </div>
 
     <div class="add-comment">
-        <div th:if="${#authentication.name !='anonymousUser'}">
+        <div th:if="${#authentication.name =='anonymousUser'}">
         <h3>Add a Comment</h3>
         <form th:action="@{/comments}" method="post">
             <input type="hidden" name="postId" th:value="${post.id}" />

@@ -41,7 +41,6 @@ public class PostController {
         model.addAttribute("totalPages", posts.getTotalPages());
         model.addAttribute("currentPage", page);
 
-        System.out.println(SecurityContextHolder.getContext().getAuthentication());
         return "posts/dashboard";
     }
 
@@ -159,5 +158,4 @@ public class PostController {
         model.addAttribute("ascending", ascending);
         return "posts/dashboard";
     }
-
 }

@@ -19,6 +19,7 @@ public class Post {
     private UUID id;
     private String title;
     private String excerpt;
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne
